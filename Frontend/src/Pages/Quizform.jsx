@@ -80,6 +80,7 @@ const Quizform = ({subject}) => {
                     name={`mcq-${question.id}`}
                     value={option}
                     onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+                    required
                 />
                 {option}
                 </label>
@@ -95,6 +96,7 @@ const Quizform = ({subject}) => {
                 type="text"
                 placeholder="Enter your answer"
                 onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+                required
             />
             </div>
         ))}
@@ -107,6 +109,7 @@ const Quizform = ({subject}) => {
                 maxLength="50"
                 placeholder="Write your answer (max 50 words)"
                 onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+                required
             />
             </div>
         ))}

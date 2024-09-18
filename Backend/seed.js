@@ -349,9 +349,10 @@ async function seed() {
 
   try {
     // Insert the questions into the database
-    await prisma.question.createMany({
-      data: questions,
-    });
+    // await prisma.question.createMany({
+    //   data: questions,
+    // });
+    console.log(select * from)
     console.log('Data has been inserted successfully');
   } catch (error) {
     console.error('Error inserting data: ', error);

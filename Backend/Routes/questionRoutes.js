@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const { PrismaClient } = require('@prisma/client');
+const { stringify } = require('querystring');
 
 const prisma = new PrismaClient();
 
@@ -43,7 +44,7 @@ router.get('/api/questions/mcq', async (req, res) => {
   
 // Fetch Fillups questions 
 router.get('/api/questions/fillups', async (req, res) => {
-    const { number } = req.query;
+    const {subject, number } = req.query;
   
     try {
       const questions = await prisma.question.findMany({
@@ -67,7 +68,7 @@ router.get('/api/questions/fillups', async (req, res) => {
   
 // Fetch Descriptive questions 
   router.get('/api/questions/descriptive', async (req, res) => {
-    const { number } = req.query;
+    const {subject , number } = req.query;
   
     try {
       const questions = await prisma.question.findMany({
@@ -77,7 +78,6 @@ router.get('/api/questions/fillups', async (req, res) => {
         },
         select: {
           id: true,
-          question_type:true,
           question_text: true,
         },
         take: number > 0 ? parseInt(number) : undefined
@@ -92,7 +92,7 @@ router.get('/api/questions/fillups', async (req, res) => {
 
 
   //check answer on submit and return calculated score and repote of user
-router.post('/api/submit-answers', async (req, res) => {
+  router.post('/api/submit-answers', async (req, res) => {
     const { answers } = req.body; 
 
     // console.log(answers);
@@ -103,6 +103,7 @@ router.post('/api/submit-answers', async (req, res) => {
       let score = 0; 
       let report = []; //  to store report for user
       let gradingNotes="";
+     
   
       // loop for each user answer
       for (const answer of answers) {
@@ -129,9 +130,12 @@ router.post('/api/submit-answers', async (req, res) => {
 
   
         let isCorrect = false; // to store user answer is correct or not
+        let ans="";
+
   
         // Check the question type and compare answers
         if (question.question_type === 'MCQ') {
+          ans=question.correct_answer;
 
           // compare the user's answer with the correct answer
 
@@ -143,6 +147,7 @@ router.post('/api/submit-answers', async (req, res) => {
 
         } 
         else if(question.question_type ==='FILL_IN_THE_BLANK') {
+          ans=question.correct_answer;
           // compare fillups without case 
           if (user_answer.toLowerCase() === question.correct_answer.toLowerCase()) {
             isCorrect = true;
@@ -151,27 +156,41 @@ router.post('/api/submit-answers', async (req, res) => {
           // console.log("filup score "+ score);
         }
         else if (question.question_type === 'DESCRIPTIVE') {
-
+          
+          ans=null;
 
           if(user_answer.length <0)
           {
             gradingNotes = 'Answer length is to big.';
             break;
           }
-          // for this we use keyword matching
-          const keywords = question.correct_answer.split(','); // Assume keywords are comma-separated in DB
+          
+          const keywords = question.correct_answer; 
           let keywordCount = 0;
-          question.correct_answer=null;
-  
-          // Check how many keywords the user answer contains
-          keywords.forEach(keyword => {
-            if (user_answer.toLowerCase().includes(keyword.trim().toLowerCase())) {
+
+          const concatenatedString = question.correct_answer+""; 
+
+         // Step 2: Remove any surrounding square brackets and spaces
+          const cleanString = concatenatedString.replace(/[\[\]]/g, '').trim();
+
+          // Step 3: Split the string into individual values based on the quotes
+          const values = cleanString.split(/","|"\s*,\s*"/).map(val => val.replace(/"/g, '').trim());
+
+         
+
+        
+          values.forEach(value => {
+            let word =value.trim().toLowerCase();
+            // console.log(word);
+            // console.log("word");
+            if (user_answer.toLowerCase().includes(word)) {
               keywordCount++;
             }
           });
   
           // Decide if the answer is "correct" based on keyword count
           if (keywordCount > 0) {
+            keywordCount =Math.min(keywordCount,2);
             score += keywordCount; // Increment score by keyword count
             isCorrect = true;
             gradingNotes = `${keywordCount} keywords matched.`;
@@ -186,7 +205,7 @@ router.post('/api/submit-answers', async (req, res) => {
           question_id: question.id,
           question_text: question.question_text,
           user_answer: user_answer,
-          correct_answer: question.correct_answer,
+          correct_answer: ans,
           is_correct: isCorrect,
           grading_notes: gradingNotes // Include notes for descriptive grading
         });
