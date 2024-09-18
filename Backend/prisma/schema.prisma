@@ -21,12 +21,20 @@ model Question {
   id             Int       @id @default(autoincrement())
   question_text  String
   question_type  QuestionType
-  options        String?   // Only for MCQs (Stored as JSON)
-  correct_answer String?   // For MCQs and Fill-in-the-Blank
+  subject  subjectType
+  options        String?   
+  correct_answer String?   
 }
 
 enum QuestionType {
   MCQ
   FILL_IN_THE_BLANK
   DESCRIPTIVE
+}
+
+enum subjectType{
+  physics
+  chemistry
+  biology
+  GK
 }

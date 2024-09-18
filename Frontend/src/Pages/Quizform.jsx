@@ -61,52 +61,61 @@ const Quizform = ({subject}) => {
 
 
 
-  return (
-    <form onSubmit={handleSubmit}>
-      <h2>MCQ Questions</h2>
-      {mcqQuestions.map((question) => (
-        <div key={question.id}>
-          <p>{question.question_text}</p>
-          { question.options.map((option, index) => (
-            <label key={index}>
-              <input
-                type="radio"
-                name={`mcq-${question.id}`}
-                value={option}
+  return ( 
+    <>
+        <h1>Test</h1>
+    {
+        descriptiveQuestions.length === 0 ? (
+            <h1>Loading...</h1>
+          ) : (
+        <form onSubmit={handleSubmit}>
+        <h2>MCQ Questions</h2>
+        {mcqQuestions.map((question) => (
+            <div key={question.id}>
+            <p>{question.question_text}</p>
+            { question.options.map((option, index) => (
+                <label key={index}>
+                <input
+                    type="radio"
+                    name={`mcq-${question.id}`}
+                    value={option}
+                    onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+                />
+                {option}
+                </label>
+            ))}
+            </div>
+        ))}
+
+        <h2>Fill-in-the-Blank Questions</h2>
+        {fillupQuestions.map((question) => (
+            <div key={question.id}>
+            <p>{question.question_text}</p>
+            <input
+                type="text"
+                placeholder="Enter your answer"
                 onChange={(e) => handleAnswerChange(question.id, e.target.value)}
-              />
-              {option}
-            </label>
-          ))}
-        </div>
-      ))}
+            />
+            </div>
+        ))}
 
-      <h2>Fill-in-the-Blank Questions</h2>
-      {fillupQuestions.map((question) => (
-        <div key={question.id}>
-          <p>{question.question_text}</p>
-          <input
-            type="text"
-            placeholder="Enter your answer"
-            onChange={(e) => handleAnswerChange(question.id, e.target.value)}
-          />
-        </div>
-      ))}
+        <h2>Descriptive Questions</h2>
+        {descriptiveQuestions.map((question) => (
+            <div key={question.id}>
+            <p>{question.question_text}</p>
+            <textarea
+                maxLength="50"
+                placeholder="Write your answer (max 50 words)"
+                onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+            />
+            </div>
+        ))}
 
-      <h2>Descriptive Questions</h2>
-      {descriptiveQuestions.map((question) => (
-        <div key={question.id}>
-          <p>{question.question_text}</p>
-          <textarea
-            maxLength="50"
-            placeholder="Write your answer (max 50 words)"
-            onChange={(e) => handleAnswerChange(question.id, e.target.value)}
-          />
-        </div>
-      ))}
-
-      <button type="submit">Submit</button>
-    </form>
+        <button type="submit">Submit</button>
+        </form>
+        )
+    }
+    </>
   );
 };
 

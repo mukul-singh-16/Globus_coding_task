@@ -8,7 +8,7 @@ const prisma = new PrismaClient();
 
 // Fetch MCQ questions 
 router.get('/api/questions/mcq', async (req, res) => {
-    const { number } = req.query; // Get number from query params
+    const { subject , number } = req.query; // Get number from query params
   
     try {
         // console.log("hello")
@@ -16,6 +16,7 @@ router.get('/api/questions/mcq', async (req, res) => {
       const questions = await prisma.question.findMany({
         where: {
           question_type: 'MCQ',
+          subject:subject
         },
         select: {
           id: true,
@@ -48,6 +49,7 @@ router.get('/api/questions/fillups', async (req, res) => {
       const questions = await prisma.question.findMany({
         where: {
           question_type: 'FILL_IN_THE_BLANK',
+          subject:subject
         },
         select: {
           id: true,
@@ -71,6 +73,7 @@ router.get('/api/questions/fillups', async (req, res) => {
       const questions = await prisma.question.findMany({
         where: {
           question_type: 'DESCRIPTIVE',
+          subject:subject
         },
         select: {
           id: true,

@@ -13,10 +13,10 @@ const App = () => {
       <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/subjects" element={<Subjects />} />
-          <Route path="/subjects/test/physicstest" element={<Quizform subject="Physics" />} />
-          <Route path="/subjects/test/chemistrytest" element={<Quizform subject="Chemistry" />} />
-          <Route path="/subjects/test/biologytest" element={<Quizform subject="Biology" />} />
-          <Route path="/subjects/test/gktest" element={<Quizform subject="General Knowledge" />} />
+          <Route path="/subjects/test/physicstest" element={<Quizform subject="physics" />} />
+          <Route path="/subjects/test/chemistrytest" element={<Quizform subject="chemistry" />} />
+          <Route path="/subjects/test/biologytest" element={<Quizform subject="biology" />} />
+          <Route path="/subjects/test/gktest" element={<Quizform subject="GK" />} />
           <Route path="/results" element={<ResultsPage />} />
       </Routes>
     </Router>
