@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 
 
 
-const Quizform = () => {
+const Quizform = ({subject}) => {
   const [mcqQuestions, setMcqQuestions] = useState([]);
   const [fillupQuestions, setFillupQuestions] = useState([]);
   const [descriptiveQuestions, setDescriptiveQuestions] = useState([]);
@@ -16,9 +16,9 @@ const Quizform = () => {
     // Fetch questions when the component loads
     const fetchQuestions = async () => {
       try {
-        const mcqResponse = await axios.get('http://localhost:5000/api/questions/mcq?number=2');
-        const fillupResponse = await axios.get('http://localhost:5000/api/questions/fillups?number=1');
-        const descriptiveResponse = await axios.get('http://localhost:5000/api/questions/descriptive?number=1');
+        const mcqResponse = await axios.get(`http://localhost:5000/api/questions/mcq?number=2&subject=${subject}`);
+        const fillupResponse = await axios.get(`http://localhost:5000/api/questions/fillups?number=1&subject=${subject}`);
+        const descriptiveResponse = await axios.get(`http://localhost:5000/api/questions/descriptive?number=1&subject=${subject}`);
 
         setMcqQuestions(mcqResponse.data);
         setFillupQuestions(fillupResponse.data);

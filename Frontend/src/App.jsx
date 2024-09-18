@@ -1,17 +1,32 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Quizform from './Pages/Quizform'; // Ensure correct import path
-import ResultsPage from './Pages/Result'; // Ensure correct import path
+import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
+import Quizform from './Pages/Quizform'; 
+import ResultsPage from './Pages/Result'; 
+import Home from './Pages/Home';
+import Navbar from './component/Navbar';
+import Subjects from './Pages/Subjects';
 
 const App = () => {
   return (
     <Router>
+    <Navbar/>
       <Routes>
-        <Route path="/" element={<Quizform />} />
-        <Route path="/results" element={<ResultsPage />} />
+          <Route path="/" element={<Home />} />
+          <Route path="/subjects" element={<Subjects />} />
+          <Route path="/subjects/test/physicstest" element={<Quizform subject="Physics" />} />
+          <Route path="/subjects/test/chemistrytest" element={<Quizform subject="Chemistry" />} />
+          <Route path="/subjects/test/biologytest" element={<Quizform subject="Biology" />} />
+          <Route path="/subjects/test/gktest" element={<Quizform subject="General Knowledge" />} />
+          <Route path="/results" element={<ResultsPage />} />
       </Routes>
     </Router>
   );
 };
+
+
+
+
+
+
 
 export default App;
