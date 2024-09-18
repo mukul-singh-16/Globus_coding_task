@@ -11,7 +11,7 @@ router.get('/api/questions/mcq', async (req, res) => {
     const { number } = req.query; // Get number from query params
   
     try {
-        console.log("hello")
+        // console.log("hello")
       // Fetch MCQ questions based on the number provided
       const questions = await prisma.question.findMany({
         where: {
@@ -27,7 +27,13 @@ router.get('/api/questions/mcq', async (req, res) => {
       });
 
     //   console.log(questions);
-      res.json(questions);
+
+    const formattedQuestions = questions.map((question) => ({
+      ...question,
+      options: JSON.parse(question.options), // Parsing here
+    }));
+
+      res.json(formattedQuestions);
 
     } catch (error) {
       res.status(500).json({ error: 'Failed to fetch MCQ questions' });
@@ -85,22 +91,39 @@ router.get('/api/questions/fillups', async (req, res) => {
   //check answer on submit and return calculated score and repote of user
 router.post('/api/submit-answers', async (req, res) => {
     const { answers } = req.body; 
+
+    // console.log(answers);
     // answers contain question id and user answer'
   
     try {
 
       let score = 0; 
       let report = []; //  to store report for user
+      let gradingNotes="";
   
       // loop for each user answer
       for (const answer of answers) {
 
         const { question_id, user_answer } = answer;
-  
+
+
+        
+        // console.log(question_id);
         // Fetch the question from the database based on question_id
+       
         const question = await prisma.question.findUnique({
-          where: { id: question_id },
+          where: { id: parseInt(question_id) }
         });
+      
+
+
+        if (!question) {
+          return res.status(404).json({ error: `Question with ID ${question_id} not found` });
+        }
+
+        // console.log("check  " + score);
+
+
   
         let isCorrect = false; // to store user answer is correct or not
   
@@ -113,6 +136,7 @@ router.post('/api/submit-answers', async (req, res) => {
             isCorrect = true;
             score += 1; // score++;
           }
+          // console.log("mcq score " +score);
 
         } 
         else if(question.question_type ==='FILL_IN_THE_BLANK') {
@@ -121,6 +145,7 @@ router.post('/api/submit-answers', async (req, res) => {
             isCorrect = true;
             score += 1; // score++
           }
+          // console.log("filup score "+ score);
         }
         else if (question.question_type === 'DESCRIPTIVE') {
 
@@ -133,6 +158,7 @@ router.post('/api/submit-answers', async (req, res) => {
           // for this we use keyword matching
           const keywords = question.correct_answer.split(','); // Assume keywords are comma-separated in DB
           let keywordCount = 0;
+          question.correct_answer=null;
   
           // Check how many keywords the user answer contains
           keywords.forEach(keyword => {
@@ -161,10 +187,13 @@ router.post('/api/submit-answers', async (req, res) => {
           is_correct: isCorrect,
           grading_notes: gradingNotes // Include notes for descriptive grading
         });
+
+
+        // console.log(report);
       
       }
 
-      res.send(200).json({ score, report });
+      res.status(200).json({ score, report });
     } catch (error) {
       res.status(500).json({ error: 'Failed to process answers' });
     }

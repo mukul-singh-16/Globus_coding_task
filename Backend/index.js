@@ -7,6 +7,10 @@ const app = express();
 app.use(bodyParser.json());
 
 
+const cors = require('cors');
+
+app.use(cors());
+
 
 
 const questionroute = require('./Routes/questionRoutes');

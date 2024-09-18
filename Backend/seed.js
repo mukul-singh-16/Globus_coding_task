@@ -4,45 +4,60 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 
+// async function main() {
+//   try {
+  //   const result = await prisma.question.deleteMany({
+  //     where: {
+  //       question_type: 'DESCRIPTIVE',
+  //     },
+  //   });
+  //   console.log(`Deleted ${result.count} questions`);
+  // } catch (error) {
+  //   console.error('Error deleting questions:', error);
+  // }
+
+
+
+// }
+
+
+
+
+
 async function main() {
-  try {
-    const result = await prisma.question.deleteMany({
-      where: {
+  try{
+    
+  await prisma.question.createMany({
+    data: [
+      {
+        question_text: 'Describe the process of photosynthesis.',
         question_type: 'DESCRIPTIVE',
+        correct_answer: 'photosynthesis, sunlight, chlorophyll, carbon dioxide',
       },
-    });
-    console.log(`Deleted ${result.count} questions`);
-  } catch (error) {
-    console.error('Error deleting questions:', error);
+      {
+        question_text: 'Explain the theory of relativity.',
+        question_type: 'DESCRIPTIVE',
+        correct_answer: 'Theory of relativity, space-time, gravity, Einstein',
+      },
+      {
+        question_text: 'What are the key principles of quantum mechanics?',
+        question_type: 'DESCRIPTIVE',
+        correct_answer: 'Quantum mechanics, uncertainty principle, wave-particle duality, superposition',
+      },
+      {
+        question_text: 'Describe the role of mitochondria in a cell.',
+        question_type: 'DESCRIPTIVE',
+        correct_answer: 'Mitochondria produce ATP, the cells energy currency, through cellular respiration.',
+      }
+    ]
+  });
+    console.log('Questions inserted successfully');
+  }
+  catch(e)
+  {
+    console.log(e);
   }
 }
-
-
-
-
-// async function main() {
-//   await prisma.question.createMany({
-//     data: [
-//       {
-//         question_text: 'What is the capital of France?',
-//         question_type: 'MCQ',
-//         options: JSON.stringify(['Paris', 'Berlin', 'Rome', 'Madrid']),
-//         correct_answer: 'Paris',
-//       },
-//       {
-//         question_text: 'Fill in the blank: The earth revolves around the ___?',
-//         question_type: 'FILL_IN_THE_BLANK',
-//         correct_answer: 'sun',
-//       },
-//       {
-//         question_text: 'Describe how the internet works in 50 words or less.',
-//         question_type: 'DESCRIPTIVE',
-//       },
-//     ],
-//   });
-
-//   console.log('Questions inserted successfully');
-// }
 
 main()
   .catch(e => {
