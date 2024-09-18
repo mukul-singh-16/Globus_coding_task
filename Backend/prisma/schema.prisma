@@ -30,6 +30,7 @@ enum QuestionType {
   MCQ
   FILL_IN_THE_BLANK
   DESCRIPTIVE
+  TF
 }
 
 enum subjectType{

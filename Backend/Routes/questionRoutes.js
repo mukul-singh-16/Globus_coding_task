@@ -7,87 +7,99 @@ const { stringify } = require('querystring');
 const prisma = new PrismaClient();
 
 
-// Fetch MCQ questions 
-router.get('/api/questions/mcq', async (req, res) => {
-    const { subject , number } = req.query; // Get number from query params
-  
-    try {
-        // console.log("hello")
-      // Fetch MCQ questions based on the number provided
-      const questions = await prisma.question.findMany({
-        where: {
-          question_type: 'MCQ',
-          subject:subject
-        },
-        select: {
-          id: true,
-          question_text: true,
-          question_type:true,
-          options: true,  
-        },
-        take: number > 0 ? parseInt(number) : undefined
-      });
+router.get('/api/questions/', async (req, res) => {
 
-    //   console.log(questions);
 
-    const formattedQuestions = questions.map((question) => ({
+  const { subject } = req.query;
+  // console.log(subject);
+
+  try {
+    // Fetch 1 MCQ question
+    const mcqQuestion = await prisma.question.findMany({
+      where: {
+        question_type: 'MCQ',
+        subject: subject,
+      },
+      select: {
+        id: true,
+        question_text: true,
+        question_type: true,
+        options: true, // MCQ-specific field
+      },
+      take: 1,
+    });
+
+    // Parse MCQ options
+    const formattedMCQ = mcqQuestion.map((question) => ({
       ...question,
-      options: JSON.parse(question.options), // Parsing here
+      options: JSON.parse(question.options), // Parsing the options
     }));
 
-      res.json(formattedQuestions);
+    // console.log(formattedMCQ);
 
-    } catch (error) {
-      res.status(500).json({ error: 'Failed to fetch MCQ questions' });
-    }
-  });
-  
-// Fetch Fillups questions 
-router.get('/api/questions/fillups', async (req, res) => {
-    const {subject, number } = req.query;
-  
-    try {
-      const questions = await prisma.question.findMany({
-        where: {
-          question_type: 'FILL_IN_THE_BLANK',
-          subject:subject
-        },
-        select: {
-          id: true,
-          question_type:true,
-          question_text: true, // No correct answer should be sent
-        },
-        take: number > 0 ? parseInt(number) : undefined
-      });
-  
-      res.json(questions);
-    } catch (error) {
-      res.status(500).json({ error: 'Failed to fetch Fill-in-the-Blank questions' });
-    }
-  });
-  
-// Fetch Descriptive questions 
-  router.get('/api/questions/descriptive', async (req, res) => {
-    const {subject , number } = req.query;
-  
-    try {
-      const questions = await prisma.question.findMany({
-        where: {
-          question_type: 'DESCRIPTIVE',
-          subject:subject
-        },
-        select: {
-          id: true,
-          question_text: true,
-        },
-        take: number > 0 ? parseInt(number) : undefined
-      });
-  
-      res.json(questions);
-    } catch (error) {
-      res.status(500).json({ error: 'Failed to fetch Descriptive questions' });
-    }
-  });
+    // Fetch 1 True/False question
+    const tfQuestion = await prisma.question.findMany({
+      where: {
+        question_type: 'TF',
+        subject: subject,
+      },
+      select: {
+        id: true,
+        question_text: true,
+        question_type: true,
+      },
+      take: 1,
+    });
+
+    // console.log(tfQuestion);
+
+    // Fetch 1 Fill-in-the-Blank question
+    const fillInTheBlankQuestion = await prisma.question.findMany({
+      where: {
+        question_type: 'FILL_IN_THE_BLANK',
+        subject: subject,
+      },
+      select: {
+        id: true,
+        question_text: true,
+        question_type: true,
+      },
+      take: 1,
+    });
+
+
+    // console.log(fillInTheBlankQuestion);
+
+    // Fetch 1 Descriptive question
+    const descriptiveQuestion = await prisma.question.findMany({
+      where: {
+        question_type: 'DESCRIPTIVE',
+        subject: subject,
+      },
+      select: {
+        id: true,
+        question_text: true,
+        question_type: true,
+      },
+      take: 1,
+    });
+    
+    // console.log(descriptiveQuestion)
+
+    // Combine all questions into one response
+    const combinedQuestions = [
+      ...formattedMCQ,
+      ...tfQuestion,
+      ...fillInTheBlankQuestion,
+      ...descriptiveQuestion,
+    ];
+
+    res.json(combinedQuestions);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch mixed questions' });
+  }
+});
+
   
 
 
@@ -134,7 +146,8 @@ router.get('/api/questions/fillups', async (req, res) => {
 
   
         // Check the question type and compare answers
-        if (question.question_type === 'MCQ') {
+        if (question.question_type === 'MCQ'|| question.question_type === 'TF') {
+          gradingNotes=null;
           ans=question.correct_answer;
 
           // compare the user's answer with the correct answer

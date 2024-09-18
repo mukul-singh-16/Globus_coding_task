@@ -27,7 +27,7 @@ const Result = () => {
         </div>
       ))}
 
-      <button className="back-button" onClick={() => navigate('/')}>Go back to Quiz</button>
+      <button className="back-button" onClick={() => navigate('/subjects')}>Go back to Quiz</button>
     </div>
   );
 };

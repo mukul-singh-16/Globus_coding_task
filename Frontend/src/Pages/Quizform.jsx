@@ -1,35 +1,26 @@
-import { useState, useEffect} from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import './Quizform.css';
 import { useNavigate } from 'react-router-dom';
 
-
-
-const Quizform = ({subject}) => {
-  const [mcqQuestions, setMcqQuestions] = useState([]);
-  const [fillupQuestions, setFillupQuestions] = useState([]);
-  const [descriptiveQuestions, setDescriptiveQuestions] = useState([]);
+const Quizform = ({ subject }) => {
+  const [questions, setQuestions] = useState([]);
   const [answers, setAnswers] = useState({});
   const navigate = useNavigate();
-  
+
   useEffect(() => {
     // Fetch questions when the component loads
     const fetchQuestions = async () => {
       try {
-        const mcqResponse = await axios.get(`http://localhost:5000/api/questions/mcq?number=2&subject=${subject}`);
-        const fillupResponse = await axios.get(`http://localhost:5000/api/questions/fillups?number=1&subject=${subject}`);
-        const descriptiveResponse = await axios.get(`http://localhost:5000/api/questions/descriptive?number=1&subject=${subject}`);
-
-        setMcqQuestions(mcqResponse.data);
-        setFillupQuestions(fillupResponse.data);
-        setDescriptiveQuestions(descriptiveResponse.data);
+        const response = await axios.get(`http://localhost:5000/api/questions?subject=${subject}`);
+        setQuestions(response.data);
       } catch (error) {
-        console.error("Error fetching questions:", error);
+        console.error('Error fetching questions:', error);
       }
     };
 
     fetchQuestions();
-  }, []);
+  }, [subject]);
 
   // Handle answer change
   const handleAnswerChange = (questionId, answer) => {
@@ -52,72 +43,82 @@ const Quizform = ({subject}) => {
 
       // Navigate to results page with score and report in state
       navigate('/results', { state: { score: response.data.score, report: response.data.report } });
-
     } catch (error) {
       console.error('Error submitting answers:', error);
     }
   };
 
-
-
-
-  return ( 
+  return (
     <>
-        <h1>Test</h1>
-    {
-        descriptiveQuestions.length === 0 ? (
-            <h1>Loading...</h1>
-          ) : (
+      <h1>Test</h1>
+      {questions.length === 0 ? (
+        <h1>Loading...</h1>
+      ) : (
         <form onSubmit={handleSubmit}>
-        <h2>MCQ Questions</h2>
-        {mcqQuestions.map((question) => (
+          {questions.map((question) => (
             <div key={question.id}>
-            <p>{question.question_text}</p>
-            { question.options.map((option, index) => (
-                <label key={index}>
+              <p>{question.question_text}</p>
+              {question.question_type === 'MCQ' && question.options && (
+                <div>
+                  {question.options.map((option, index) => (
+                    <label key={index}>
+                      <input
+                        type="radio"
+                        name={`mcq-${question.id}`}
+                        value={option}
+                        onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+                        required
+                      />
+                      {option}
+                    </label>
+                  ))}
+                </div>
+              )}
+              {question.question_type === 'TF' && (
+                <div>
+                  <label>
+                    <input
+                      type="radio"
+                      name={`tf-${question.id}`}
+                      value="True"
+                      onChange={(e) => handleAnswerChange(question.id, 'true')}
+                      required
+                    />
+                    True
+                  </label>
+                  <label>
+                    <input
+                      type="radio"
+                      name={`tf-${question.id}`}
+                      value="False"
+                      onChange={(e) => handleAnswerChange(question.id, 'false')}
+                      required
+                    />
+                    False
+                  </label>
+                </div>
+              )}
+              {question.question_type === 'FILL_IN_THE_BLANK' && (
                 <input
-                    type="radio"
-                    name={`mcq-${question.id}`}
-                    value={option}
-                    onChange={(e) => handleAnswerChange(question.id, e.target.value)}
-                    required
+                  type="text"
+                  placeholder="Enter your answer"
+                  onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+                  required
                 />
-                {option}
-                </label>
-            ))}
+              )}
+              {question.question_type === 'DESCRIPTIVE' && (
+                <textarea
+                  // maxLength="50"
+                  placeholder="Write your answer (max 50 words)"
+                  onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+                  required
+                />
+              )}
             </div>
-        ))}
-
-        <h2>Fill-in-the-Blank Questions</h2>
-        {fillupQuestions.map((question) => (
-            <div key={question.id}>
-            <p>{question.question_text}</p>
-            <input
-                type="text"
-                placeholder="Enter your answer"
-                onChange={(e) => handleAnswerChange(question.id, e.target.value)}
-                required
-            />
-            </div>
-        ))}
-
-        <h2>Descriptive Questions</h2>
-        {descriptiveQuestions.map((question) => (
-            <div key={question.id}>
-            <p>{question.question_text}</p>
-            <textarea
-                maxLength="50"
-                placeholder="Write your answer (max 50 words)"
-                onChange={(e) => handleAnswerChange(question.id, e.target.value)}
-                required
-            />
-            </div>
-        ))}
-
-        <button type="submit">Submit</button>
+          ))}
+          <button type="submit">Submit</button>
         </form>
-        )
-    }
+      )}
     </>
   );
 };
