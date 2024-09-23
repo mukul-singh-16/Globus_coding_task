@@ -14,7 +14,7 @@ app.use(cors());
 
 
 const questionroute = require('./Routes/questionRoutes');
-app.use(questionroute);
+app.use("/api",questionroute);
 
 
 // Start the server

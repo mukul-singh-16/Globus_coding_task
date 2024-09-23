@@ -7,7 +7,7 @@ const { stringify } = require('querystring');
 const prisma = new PrismaClient();
 
 
-router.get('/api/questions/', async (req, res) => {
+router.get('/questions/', async (req, res) => {
 
 
   const { subject } = req.query;
@@ -104,7 +104,7 @@ router.get('/api/questions/', async (req, res) => {
 
 
   //check answer on submit and return calculated score and repote of user
-  router.post('/api/submit-answers', async (req, res) => {
+  router.post('/submit-answers', async (req, res) => {
     const { answers } = req.body; 
 
     // console.log(answers);
