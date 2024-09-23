@@ -13,8 +13,14 @@ app.use(cors());
 
 
 
+app.get('/', (req, res) => {
+  
+  res.send("server working");
+});
+
+
 const questionroute = require('./Routes/questionRoutes');
-app.use("/api",questionroute);
+app.use(questionroute);
 
 
 // Start the server
